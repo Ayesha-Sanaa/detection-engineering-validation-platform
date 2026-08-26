@@ -1,0 +1,35 @@
+title: Encoded PowerShell Execution
+id: 8f2c1a3e-4b5d-4e6f-9a1b-2c3d4e5f6a7b
+status: experimental
+description: >
+  Detects PowerShell execution with encoded or hidden-window command-line
+  flags, commonly used to obfuscate malicious commands during initial
+  access or execution stages.
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+author: Zeroexcuses
+date: 2026/08/21
+tags:
+  - attack.execution
+  - attack.t1059.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\powershell.exe'
+  encoded_flags:
+    CommandLine|contains:
+      - '-enc'
+      - '-EncodedCommand'
+  hidden_flags:
+    CommandLine|contains|all:
+      - '-nop'
+      - '-w'
+      - 'hidden'
+  condition: selection and (encoded_flags or hidden_flags)
+falsepositives:
+  - Legitimate administrative automation scripts that use encoded commands
+    for scheduled tasks (document specific parent process exclusions here
+    after your FP tuning pass).
+level: medium
